@@ -1,0 +1,45 @@
+version: '3'
+
+vars:
+  CONTAINER_IMAGE: hannes/freerouting_cli
+
+tasks:
+  default:
+    desc: Defult task renders all keyboards
+    deps:
+    - install-deps
+    - docker-build
+    cmds:
+    - task: s1:render
+    - task: uni1:render
+
+  docker-build:
+    desc: Build needed docker images
+    dir: ./docker
+    run: once
+    cmds:
+      - docker build . -t {{.CONTAINER_IMAGE}}
+      - touch .docker-build-done
+    generates:
+      - .docker-build-done
+  install-deps:
+    desc: install ergogen as a dependency
+    run: once
+    cmds:
+      - npm ci
+    sources:
+      - package-lock.json
+    generates:
+      - node_modules/*/**
+
+includes:
+  s1:
+    taskfile: ./BuildTasks.yml
+    dir: ./s1
+    vars:
+      TASK_PATH: '{{.PWD}}/s1'
+  uni1:
+    taskfile: ./BuildTasks.yml
+    dir: ./uni1
+    vars:
+      TASK_PATH: '{{.PWD}}/uni1'

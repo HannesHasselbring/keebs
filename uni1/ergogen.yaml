@@ -1,0 +1,313 @@
+
+# inspired https://github.com/cyril279/keyboards
+units:
+  halves_rotation: 15
+  halves_distance: 40
+  promicro_x: 24
+  promicro_y: 45
+  size_x: 1u +2
+  size_y: 1u +2
+points:
+  key: &key
+    tags:
+      keys: true
+    footprints:
+      mx_hotswap:
+        type: mx
+        params:
+          hotswap: true
+          keycaps: true
+        nets:
+          from: =colrow
+          to: =column_net
+      choc:
+        type: choc
+        anchor:
+          rotate: 180
+        nets:
+          from: =colrow
+          to: =column_net
+        params:
+          reverse: true
+      diode:
+        type: diode
+        nets:
+          from: =colrow
+          to: =row_net
+        anchor:
+          rotate: 180
+          shift: [0, -8.5]
+          # shift: [0, -5]
+  zones:
+    matrix:
+      rotate: -halves_rotation
+      mirror: &mirror
+        ref: matrix_inner_top
+        distance: halves_distance
+      rows:
+        bottom:
+          row_net: P19
+          row_mark: LB
+          mirror:
+            row_net: P14
+            row_mark: RB
+        home:
+          row_net: P20
+          row_mark: LH
+          mirror:
+            row_net: P15
+            row_mark: RH
+        top:
+          row_net: P21
+          row_mark: LT
+          mirror:
+            row_net: P18
+            row_mark: RT
+      columns:
+        # outer:
+        #   stagger: 0
+        #   key:
+        #     column_net: P4
+        #     column_mark: O
+        pinky:
+          stagger: 0.25 u
+          key:
+            column_net: P5
+            column_mark: P
+        ring:
+          stagger: 0.25 u
+          key:
+            column_net: P6
+            column_mark: R
+        middle:
+          stagger: 0.5 u
+          key:
+            column_net: P7
+            column_mark: mr
+        index:
+          stagger: -0.25 u
+          key:
+            column_net: P8
+            column_mark: IND
+        inner:
+          stagger: -0.25 u
+          key:
+            column_net: P9
+            column_mark: INN
+    thumb:
+      anchor:
+        ref: matrix_index_bottom
+        shift: [0, -1.4u]
+      mirror: *mirror
+      key: 
+      columns:
+        near:
+          rotate: halves_rotation
+          key:
+            name: thumb_near
+            column_net: P4
+            column_mark: TNL
+        home:
+          stagger: -0.25 u
+          spread: 1.2u
+          rotate: -halves_rotation
+          key:
+            name: thumb_home
+            column_net: P5
+            column_mark: THL
+            mirror:
+              column_net: P7
+              column_mark: THR
+      rows:
+        thumb:
+          row_net: P16
+          row_mark: TR
+    thumb_center:
+      anchor:
+        ref: 
+          - thumb_home
+          - mirror_thumb_home
+        shift: [0, -0.2u]
+        rotate: -halves_rotation
+      key: *key
+      columns:
+        far:
+          stagger: -0.0 u
+          rotate: halves_rotation
+          key:
+            name: thumb_center
+            column_net: P6
+            column_mark: TC
+      rows:
+        thumb_center:
+          row_net: P16
+            
+    # mcu:
+    #   anchor:
+    #     ref: [matrix_inner_top, mirror_matrix_inner_top]
+    #     shift: [0, -0.7u - 0.5promicro_y]
+    #   key:
+    #     name: mcu
+    #     width: promicro_x
+    #     height: promicro_y
+    #     footprints:
+    #     - type: promicro
+    #       anchor:
+    #         rotate: -90
+    #       params:
+    #         orientation: up
+    # mounting_hole:
+    #   anchor:
+    #     ref: matrix_inner_home
+    #     shift: [-0.5u + 4, -u + 4]
+    #   mirror: *mirror
+    #   key:
+    #     name: mounting_hole
+    #     width: 1
+    #     height: 1
+    #     footprints:
+    #     - type: mountinghole      
+outlines:
+  glue:
+    glue: 
+      top.left.ref: matrix_inner_top
+      top.right.ref: mirror_matrix_inner_top
+      bottom.left.ref: matrix_inner_bottom
+      bottom.right.ref: mirror_matrix_inner_bottom
+  exports:
+    raw:
+      - type: keys
+        size: &size [size_x, size_y]
+        side: both
+        corner: 2
+    raw_thumb_glue:
+      - type: outline
+        name: raw
+      # thumb keys
+      - type: polygon
+        operation: add
+        points:
+        - ref: matrix_pinky_bottom
+          shift: [0, 0.5u]
+        - ref: thumb_near
+          shift: [0.5u, -0.6u]
+        - ref: thumb_home
+          shift: [0, -0.6u]
+        - ref: thumb_center
+          shift: [0, -0.6u]
+        - ref: mirror_thumb_home
+          shift: [0, -0.6u]
+        - ref: mirror_thumb_near
+          shift: [0.5u, -0.6u]
+        - ref: mirror_matrix_pinky_bottom
+          shift: [0, 0.5u]
+    keywell:
+      main:
+        type: outline
+        name: raw_thumb_glue
+        operation: add
+    controller_area:
+      main:
+        type: rectangle
+        anchor:
+          ref:
+            - matrix_middle_top
+            - matrix_inner_top
+          shift: [0, 0.3u +promicro_x]
+          rotate: -90
+        size: [promicro_x, promicro_y]
+        corner: 2
+      # controller_glue:
+      #   # maybe polygon or glue?
+      #   type: rectangle
+      #   anchor:
+      #     ref:
+      #       - matrix_inner_top
+      #       - mirror_matrix_inner_top
+      #     shift: [-10, -10]
+      #   size: [20, 20]
+    switches:
+      main:
+        type: keys
+        side: both
+        size: 14
+        bound: false
+    keycaps:
+      main:
+        type: keys
+        side: both
+        size: [2, 2]
+        bound: false
+        corner: 1
+    pcb:
+      main:
+        type: outline
+        name: keywell
+      # controller:
+      #   type: outline
+      #   name: controller_area
+      #   operation: add
+    plate:
+      main:
+        type: outline
+        name: keywell
+      switches:
+        type: outline
+        name: switches
+        operation: subtract
+    preview:
+      - raw_thumb_glue
+      - ^controller_area
+      - ^keycaps
+cases:
+  case_plate:
+    - type: outline
+      name: plate
+      extrude: 1.2
+pcbs:
+  top_plate:
+    outlines:
+      edge:
+        outline: plate
+        layer: Edge.Cuts
+    # TODO: Include some text?
+  board:
+    outlines:
+      edge:
+        outline: pcb
+        layer: Edge.Cuts
+    footprints:
+      mcu:
+        type: promicro
+        params:
+          orientation: up
+          batteryPins: true
+        anchor:
+          ref:
+            - matrix_inner_top
+            - mirror_matrix_inner_top
+          rotate: -90
+          shift: [0, -22]
+      oled:
+        type: oled
+        anchor:
+          ref:
+            - matrix_inner_bottom
+            - mirror_matrix_inner_bottom
+          shift: [-6, -5]
+          rotate: 90
+        nets:
+          SDA: P2
+          SCL: P3
+      reset_switch:
+        type: tactswitch
+        anchor:
+          ref:
+            - matrix_inner_bottom
+            - mirror_matrix_inner_bottom
+          shift: [0, -8]
+          # rotate: 90
+        nets:
+          from: GND
+          to: RST
+

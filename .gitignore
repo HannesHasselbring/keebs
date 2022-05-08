@@ -1,0 +1,4 @@
+.task/
+node_modules
+docker/.docker-build-done
+*/output

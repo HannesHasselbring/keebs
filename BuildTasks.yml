@@ -1,0 +1,92 @@
+version: 3
+
+vars:
+  TASK_PATH: '{{.TASK_PATH | default ".PWD"}}'
+  CONTAINER_ARGS: '{{.CONTAINER_ARGS | default "-w /board --rm"}}'
+    # sh: echo "-w /board -v $(pwd):/board --rm"
+#  CONTAINER_IMAGE: hannes/freerouting_cli
+
+tasks:
+
+  test:
+    cmds:
+      - echo "Taskpath is {{.TASK_PATH}}"
+      - echo "Condainer args {{.CONTAINER_ARGS}}"
+      - test -f "{{.TASK_PATH}}/ergogen.yml"
+  gen:
+    desc: generate outputs (plate, pcb, case,...)
+    cmds:
+      - npx ergogen ergogen.yaml
+    sources:
+      - ergogen.yaml
+    generates:
+      - output/*/**
+
+  export-dsn:
+    deps:
+      - gen
+    sources:
+      - output/pcbs/board.kicad_pcb
+    generates:
+      - output/pcbs/board.dsn
+    cmds:
+      - rm -f output/pcbs/board.dsn
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board soundmonster/kicad-automation-scripts:latest /usr/lib/python2.7/dist-packages/kicad-automation/pcbnew_automation/export_dsn.py output/pcbs/board.kicad_pcb output/pcbs/board.dsn
+
+  export-ses:
+    deps:
+      - export-dsn
+    sources:
+      - output/pcbs/board.dsn
+    generates:
+      - output/routed_pcbs/board.ses
+    cmds:
+      - mkdir -p output/routed_pcbs
+      # - docker run {{.CONTAINER_ARGS}} soundmonster/freerouting_cli:v0.1.0 java -jar /opt/freerouting_cli.jar -ap 100 -pp 100 -fo -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses
+      # - docker run {{.CONTAINER_ARGS}}  hannes/freerouting java -jar /freerouting.jar -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -mp 100
+      # - java -Xms2280m -jar ./freerouting.jar -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -mp 100 -mt 11 -us greedy -is random
+      # - java -Xms4280m -jar ./freerouting_cli.jar -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -is random -fo -oit 0.8 -us global
+      # - java -Xmx4389m -Xms450m -jar /home/hannes/dev/keyboard/trunk/build/obj/freerouting_cli.jar -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -us global -mp 100 -mt 32
+      #- /home/hannes/dev/keyboard/trunk/build/obj/freerouting_cli -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses  -mp 10 -mt 32
+      # - ./freerouting_cli -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -ap 100 -pp 100 -fo
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board {{.CONTAINER_IMAGE}} freerouting_cli -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -ap 100 -pp 100 -fo
+  export-routed-pcb:
+    deps:
+      - gen
+      - export-ses
+    sources:
+      - output/routed_pcbs/board.ses
+      - output/pcbs/board.kicad_pcb
+    generates:
+      - output/routed_pcbs/board.kicad_pcb
+    cmds:
+      - rm -f output/routed_pcbs/board.kicad_pcb
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board soundmonster/kicad-automation-scripts:latest /usr/lib/python2.7/dist-packages/kicad-automation/pcbnew_automation/import_ses.py output/pcbs/board.kicad_pcb output/routed_pcbs/board.ses --output-file $@ output/routed_pcbs/board.kicad_pcb
+
+  drc:
+    deps:
+      - export-routed-pcb
+    sources:
+      - output/routed_pcbs/board.kicad_pcb
+    # generates:
+    #   - output/routed_pcbs/board-drc
+    cmds:
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board soundmonster/kicad-automation-scripts:latest /usr/lib/python2.7/dist-packages/kicad-automation/pcbnew_automation/run_drc.py  output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-drc
+
+  render:
+    desc: renders front and back of the routed pcb
+    deps:
+      - export-routed-pcb
+    sources:
+      - output/routed_pcbs/board.kicad_pcb
+    generates:
+      - output/routed_pcbs/board-front.png
+      - output/routed_pcbs/board-back.png
+    cmds:
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-front.png
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" -b --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-back.png
+
+  clean:
+    desc: remove generated output (output folder)
+    cmds:
+      - rm -rf output

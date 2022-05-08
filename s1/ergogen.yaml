@@ -1,0 +1,354 @@
+units:
+  half: u/2.0
+  padding_x: 2
+  padding_y: 2
+  size_x: 1u
+  size_y: 1u
+  promicro_x: 18
+  promicro_y: 33
+  # promicro_x: 22
+  # promicro_y: 40
+  distance: 50
+  rotation: 15
+
+points:
+  zones:
+    matrix:
+      rotate: -rotation
+      mirror: &mirror
+        ref: matrix_inner_top
+        distance: distance
+      columns:
+        outer:
+          key:
+            column_net: P4
+            column_mark: O
+        pinky:
+          key:
+            column_net: P5
+            column_mark: P
+        ring:
+          stagger: 0.4 u
+          key:
+            column_net: P6
+            column_mark: R
+        middle:
+          stagger: 0.3 u
+          key:
+            column_net: P7
+            column_mark: M
+        index:
+          stagger: -0.2 u
+          key:
+            column_net: P8
+            column_mark: IN
+        inner:
+          stagger: -0.1 u
+          key:
+            column_net: P9
+            column_mark: I
+      rows:
+        bottom:
+          row_net: P19
+          mirror:
+            row_net: P14
+        home:
+          row_net: P20
+          mirror:
+            row_net: P15
+        top:
+          row_net: P21
+          mirror:
+            row_net: P18
+    thumbfan:
+      anchor:
+        ref: matrix_middle_bottom
+        shift: [0, -27]
+      mirror: *mirror
+      columns:
+        near:
+          spread: u
+          # rotate: -15
+          origin: [-0.5 u, -0.5 u]
+          key:
+            column_net: P4
+            column_mark: TN
+            mirror:
+              column_net: P8
+        home:
+          spread: 1.05 u
+          rotate: -10
+          origin: [-0.5 u, -0.5 u]
+          key:
+            column_net: P5
+            column_mark: TH
+            mirror:
+              column_net: P7
+        far:
+          spread: 1.05u
+          rotate: -20
+          origin: [-0.5 u, -0.5 u]
+          key:
+            column_net: P6
+            column_mark: TF
+            mirror:
+              # todo: right far on P9, might delete it later for reviung41 compatibility
+              column_net: P9
+      rows:
+        thumb:
+          padding: 0
+          row_net: P16
+  key:
+    tags:
+      keys: true
+    footprints:
+      mx_hotswap:
+        type: mx
+        params:
+          hotswap: false
+          keycaps: true
+        nets:
+          from: =colrow
+          to: =column_net
+      choc:
+        type: choc
+        nets:
+          from: =colrow
+          to: =column_net
+        params:
+          reverse: true
+        anchor:
+          rotate: 180
+      diode:
+        type: diode
+        anchor:
+          rotate: 180
+          shift: [0, -8.5]
+        nets:
+          from: =colrow # colrow is a unique string for each column+row point
+          to: =row_net # This is a key property set in on each row
+        # params:
+        #   via_in_pad: true
+        #   through_hole: false
+outlines:
+  glue:
+    glue:
+      top:
+        left:
+          ref: matrix_inner_top
+          # shift: [+half, +half]
+        right:
+          ref: mirror_matrix_inner_top
+          # shift: [-half, +half]
+      bottom:
+        left:
+          ref: matrix_inner_bottom
+          shift: [+half, -half]
+        right:
+          ref: mirror_matrix_inner_bottom
+          shift: [-half, -half]
+  exports:
+    raw:
+      - type: keys
+        side: both
+        size: [size_x +padding_x, size_y +padding_y]
+    # raw_left:
+    # - type: keys
+    #   side: left
+    #   size: [size_x +padding_x, size_y +padding_y]
+    # - type: polygon
+    #   points:
+    #     - ref: matrix_ring_bottom
+    #       shift: [+half, -half]
+    #     - ref: thumbfan_near_thumb
+    #       shift: [-half, -half -padding_y]
+    #     - ref: thumbfan_home_thumb
+    #       shift: [-half, -half]
+    #     - ref: thumbfan_far_thumb
+    #       shift: [-half, -half]
+    #     - ref: thumbfan_far_thumb
+    #       shift: [+half, -half]
+    #     - ref: thumbfan_far_thumb
+    #       shift: [+half +padding_x, +half +padding_y]
+    #     - ref: matrix_inner_bottom
+    #       shift: [+half, 0]
+    #     - ref: matrix_ring_bottom
+    #       shift: [+half, -half]
+    # raw_right:
+    # - type: keys
+    #   side: right
+    #   size: [size_x +padding_x, size_y +padding_y]
+    raw_thumb_glue:
+      - type: outline
+        name: raw
+      - type: polygon
+        points:
+          - ref: matrix_ring_bottom
+            shift: [+half, -half]
+          - ref: thumbfan_near_thumb
+            shift: [-half, -half -padding_y]
+          - ref: thumbfan_home_thumb
+            shift: [-half, -half]
+          - ref: thumbfan_far_thumb
+            shift: [-half, -half]
+          # 2nd half
+          - ref: mirror_thumbfan_far_thumb
+            shift: [-half, -half]
+          - ref: mirror_thumbfan_home_thumb
+            shift: [-half, -half]
+          - ref: mirror_thumbfan_near_thumb
+            shift: [-half, -half -padding_y]
+          - ref: mirror_matrix_ring_bottom
+            shift: [+half, -half]
+          - ref: mirror_matrix_ring_bottom
+          - ref: matrix_ring_bottom
+    controller_area:
+      - type: rectangle
+        anchor:
+          ref:
+            - matrix_inner_top
+            - mirror_matrix_inner_top
+          shift: [-18* 0.5, -38]
+          rotate: 0  #+rotation
+        size: [18, 33]
+    base_outline:
+      - type: outline
+        name: raw_thumb_glue
+      - type: outline
+        name: controller_area
+        operation: add
+    switches:
+      main:
+        type: keys
+        side: both
+        size: 14
+        bound: false
+    switches_left:
+      - type: keys
+        side: left
+        size: 14
+    keycaps:
+      main:
+        type: keys
+        side: both
+        size: [size_x, size_y]
+        bound: false
+        corner: 1
+    switchplate_left:
+    - type: outline
+      name: base_outline
+      fillet: 1
+    - type: outline
+      name: switches_left
+      operation: subtract
+    pcb:
+    - type: outline
+      name: base_outline
+      fillet: 1
+    switch_plate:
+      main:
+        type: outline
+        name: base_outline
+        fillet: 1
+      switches:
+        type: outline
+        name: switches
+        operation: subtract
+      controller:
+        type: outline
+        name: controller_area
+        operation: subtract
+    # # Apply a fillet to the polygon specified above to round the corners
+    # roundedpolygon:
+    #   - type: outline
+    #     name: polygonoutline
+    #     fillet: 4
+    # base_outline:
+    #   main:
+    #     type: outline
+    #     name: roundedpolygon
+    #   controller:
+    #     type: outline
+    #     name: controller_area
+    #     operation: add
+    # # Create an outline of 14x14mm cutouts on each key/point
+    # switch_cutouts:
+    #   - type: keys
+    #     side: left
+    #     size: 14 # 14mmx14mm cutouts will fit Choc and MX switches
+    #     bound: false
+    # # Create a keycap outline for each key/point
+    # keycap_outlines:
+    #   - type: keys
+    #     side: left
+    #     size: [u, u] # Choc keycaps are 17.5 x 16.5
+    #     bound: false
+    # # Subtract switch_cutouts from the main shape to create a switch plate outline
+    # switch_plate: [roundedpolygon, -switch_cutouts]
+    # # Subtract keycap_outlines from the outer shape to visualize keycaps
+    # choc_caps_preview: [roundedpolygon, -keycap_outlines]
+cases:
+  # Generate switch plate STL to print a test layout
+  switchplate:
+    - type: outline
+      name: switch_plate
+      extrude: 1.2 # mm, Choc plate height
+pcbs:
+  # switchplate:
+  #   outlines:
+  #     edge:
+  #       outline: switch_plate
+  #       layer: Edge.Cuts
+  board:
+    outlines:
+      edge:
+        outline: pcb
+        layer: Edge.Cuts
+        # TODO there's a way to add stuff to the silkscreen layer
+    footprints:
+      mcu:
+        type: promicro
+        params:
+          orientation: up
+          batteryPins: true
+        anchor:
+          ref:
+            - matrix_inner_top
+            - mirror_matrix_inner_top
+          shift: [0, -23]
+          rotate: 270 #+rotation
+      oled:
+        type: oled
+        anchor:
+          ref:
+            - matrix_inner_bottom
+            - mirror_matrix_inner_bottom
+          shift: [-6, -5]
+          rotate: 90
+        nets:
+          SDA: P2
+          SCL: P3
+      reset_switch:
+        type: tactswitch
+        anchor:
+          ref:
+            - matrix_inner_bottom
+            - mirror_matrix_inner_bottom
+          shift: [0, -8]
+          # rotate: 90
+        nets:
+          from: GND
+          to: RST
+      # slider:
+      #   type: slider
+      #   anchor:
+      #     ref:
+      #       - thumbfan_far_thumb
+      #       - mirror_thumbfan_far_thumb
+      #     shift: [0, 2]
+      #     rotate: 180
+      #   nets:
+      #     from: RAW
+      #     to: RAWER
+      #   params:
+      #     side: B
