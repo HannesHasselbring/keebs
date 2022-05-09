@@ -72,12 +72,12 @@ tasks:
     sources:
       - output/routed_pcbs/board.kicad_pcb
     generates:
-      - output/routed_pcbs/board-front.svg
-      - output/routed_pcbs/board-back.svg
+      - output/routed_pcbs/board-front.png
+      - output/routed_pcbs/board-back.png
     cmds:
-      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-front.svg
-      - cp output/routed_pcbs/board-front.svg ../img/{{.BOARD}}.svg
-      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" -b --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-back.svg
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-front.png
+      - cp output/routed_pcbs/board-front.png ../img/{{.BOARD}}.png
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" -b --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-back.png
 
   clean:
     desc: remove generated output (output folder)

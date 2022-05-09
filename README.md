@@ -3,12 +3,12 @@
 [Ergogen](ergogen.xyz) generated unibody split Keyboard.
 It uses [Task](https://github.com/go-task/task) for build automation
 
-> Currently work in progress
+> Currently work in progress, things might be broken
 
 ## Keyboards
 
-S1: ![S1](./img/s1.svg)
-Uni1: ![Uni1](./img/uni1.svg)
+- S1: ![S1](./img/s1.png)
+- Uni1: ![Uni1](./img/uni1.png)
 
 
 ## Getting started
