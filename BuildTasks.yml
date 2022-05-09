@@ -3,8 +3,7 @@ version: 3
 vars:
   TASK_PATH: '{{.TASK_PATH | default ".PWD"}}'
   CONTAINER_ARGS: '{{.CONTAINER_ARGS | default "-w /board --rm"}}'
-    # sh: echo "-w /board -v $(pwd):/board --rm"
-#  CONTAINER_IMAGE: hannes/freerouting_cli
+  BOARD: '{{.BOARD | default "board"}}'
 
 tasks:
 
@@ -42,13 +41,6 @@ tasks:
       - output/routed_pcbs/board.ses
     cmds:
       - mkdir -p output/routed_pcbs
-      # - docker run {{.CONTAINER_ARGS}} soundmonster/freerouting_cli:v0.1.0 java -jar /opt/freerouting_cli.jar -ap 100 -pp 100 -fo -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses
-      # - docker run {{.CONTAINER_ARGS}}  hannes/freerouting java -jar /freerouting.jar -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -mp 100
-      # - java -Xms2280m -jar ./freerouting.jar -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -mp 100 -mt 11 -us greedy -is random
-      # - java -Xms4280m -jar ./freerouting_cli.jar -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -is random -fo -oit 0.8 -us global
-      # - java -Xmx4389m -Xms450m -jar /home/hannes/dev/keyboard/trunk/build/obj/freerouting_cli.jar -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -us global -mp 100 -mt 32
-      #- /home/hannes/dev/keyboard/trunk/build/obj/freerouting_cli -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses  -mp 10 -mt 32
-      # - ./freerouting_cli -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -ap 100 -pp 100 -fo
       - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board {{.CONTAINER_IMAGE}} freerouting_cli -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -ap 100 -pp 100 -fo
   export-routed-pcb:
     deps:
@@ -80,11 +72,12 @@ tasks:
     sources:
       - output/routed_pcbs/board.kicad_pcb
     generates:
-      - output/routed_pcbs/board-front.png
-      - output/routed_pcbs/board-back.png
+      - output/routed_pcbs/board-front.svg
+      - output/routed_pcbs/board-back.svg
     cmds:
-      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-front.png
-      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" -b --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-back.png
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-front.svg
+      - cp output/routed_pcbs/board-front.svg ../img/{{.BOARD}}.svg
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board yaqwsx/kikit:nightly pcbdraw --filter "" -b --style builtin:oshpark-afterdark.json output/routed_pcbs/board.kicad_pcb output/routed_pcbs/board-back.svg
 
   clean:
     desc: remove generated output (output folder)

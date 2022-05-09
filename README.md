@@ -5,6 +5,12 @@ It uses [Task](https://github.com/go-task/task) for build automation
 
 > Currently work in progress
 
+## Keyboards
+
+S1: ![S1](./img/s1.svg)
+Uni1: ![Uni1](./img/uni1.svg)
+
+
 ## Getting started
 
 - Clone this repo

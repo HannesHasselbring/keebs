@@ -140,33 +140,7 @@ points:
             column_mark: TC
       rows:
         thumb_center:
-          row_net: P16
-            
-    # mcu:
-    #   anchor:
-    #     ref: [matrix_inner_top, mirror_matrix_inner_top]
-    #     shift: [0, -0.7u - 0.5promicro_y]
-    #   key:
-    #     name: mcu
-    #     width: promicro_x
-    #     height: promicro_y
-    #     footprints:
-    #     - type: promicro
-    #       anchor:
-    #         rotate: -90
-    #       params:
-    #         orientation: up
-    # mounting_hole:
-    #   anchor:
-    #     ref: matrix_inner_home
-    #     shift: [-0.5u + 4, -u + 4]
-    #   mirror: *mirror
-    #   key:
-    #     name: mounting_hole
-    #     width: 1
-    #     height: 1
-    #     footprints:
-    #     - type: mountinghole      
+          row_net: P16 
 outlines:
   glue:
     glue: 
@@ -206,26 +180,6 @@ outlines:
         type: outline
         name: raw_thumb_glue
         operation: add
-    controller_area:
-      main:
-        type: rectangle
-        anchor:
-          ref:
-            - matrix_middle_top
-            - matrix_inner_top
-          shift: [0, 0.3u +promicro_x]
-          rotate: -90
-        size: [promicro_x, promicro_y]
-        corner: 2
-      # controller_glue:
-      #   # maybe polygon or glue?
-      #   type: rectangle
-      #   anchor:
-      #     ref:
-      #       - matrix_inner_top
-      #       - mirror_matrix_inner_top
-      #     shift: [-10, -10]
-      #   size: [20, 20]
     switches:
       main:
         type: keys
@@ -243,10 +197,6 @@ outlines:
       main:
         type: outline
         name: keywell
-      # controller:
-      #   type: outline
-      #   name: controller_area
-      #   operation: add
     plate:
       main:
         type: outline
@@ -257,7 +207,6 @@ outlines:
         operation: subtract
     preview:
       - raw_thumb_glue
-      - ^controller_area
       - ^keycaps
 cases:
   case_plate:

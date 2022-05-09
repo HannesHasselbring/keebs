@@ -38,8 +38,10 @@ includes:
     dir: ./s1
     vars:
       TASK_PATH: '{{.PWD}}/s1'
+      BOARD: s1
   uni1:
     taskfile: ./BuildTasks.yml
     dir: ./uni1
     vars:
       TASK_PATH: '{{.PWD}}/uni1'
+      BOARD: uni1
