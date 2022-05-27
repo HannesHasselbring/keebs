@@ -1,10 +1,8 @@
-
-# inspired https://github.com/cyril279/keyboards
 units:
   halves_rotation: 15
-  halves_distance: 40
-  promicro_x: 24
-  promicro_y: 45
+  halves_distance: 30
+  promicro_x: 18
+  promicro_y: 33
   size_x: 1u +2
   size_y: 1u +2
 points:
@@ -140,7 +138,33 @@ points:
             column_mark: TC
       rows:
         thumb_center:
-          row_net: P16 
+          row_net: P16
+            
+    # mcu:
+    #   anchor:
+    #     ref: [matrix_inner_top, mirror_matrix_inner_top]
+    #     shift: [0, -0.7u - 0.5promicro_y]
+    #   key:
+    #     name: mcu
+    #     width: promicro_x
+    #     height: promicro_y
+    #     footprints:
+    #     - type: promicro
+    #       anchor:
+    #         rotate: -90
+    #       params:
+    #         orientation: up
+    # mounting_hole:
+    #   anchor:
+    #     ref: matrix_inner_home
+    #     shift: [-0.5u + 4, -u + 4]
+    #   mirror: *mirror
+    #   key:
+    #     name: mounting_hole
+    #     width: 1
+    #     height: 1
+    #     footprints:
+    #     - type: mountinghole      
 outlines:
   glue:
     glue: 
@@ -180,6 +204,36 @@ outlines:
         type: outline
         name: raw_thumb_glue
         operation: add
+    controller:
+      main:
+        type: rectangle
+        anchor:
+          ref:
+            - matrix_middle_top
+            - matrix_inner_top
+          shift: [1, 0.65u +promicro_x]
+          rotate: -90
+        size: [promicro_x, promicro_y]
+    controller_area:
+      main:
+        type: rectangle
+        anchor:
+          ref:
+            - matrix_middle_top
+            - matrix_inner_top
+          shift: [0, 0.7u +promicro_x]
+          rotate: -90
+        size: [promicro_x +10, promicro_y +10]
+        corner: 2
+      controller_glue:
+        # maybe polygon or glue?
+        type: rectangle
+        anchor:
+          ref:
+            - matrix_inner_top
+            - mirror_matrix_inner_top
+          shift: [-10, -10]
+        size: [20, 20]
     switches:
       main:
         type: keys
@@ -190,13 +244,13 @@ outlines:
       main:
         type: keys
         side: both
-        size: [2, 2]
+        size: [1u, 1u]
         bound: false
         corner: 1
     pcb:
-      main:
-        type: outline
-        name: keywell
+      - keywell
+      - +controller
+      - +controller_area
     plate:
       main:
         type: outline
@@ -207,6 +261,8 @@ outlines:
         operation: subtract
     preview:
       - raw_thumb_glue
+      - ^controller
+      - ^controller_area
       - ^keycaps
 cases:
   case_plate:
@@ -233,18 +289,17 @@ pcbs:
           batteryPins: true
         anchor:
           ref:
+            - matrix_middle_top
             - matrix_inner_top
-            - mirror_matrix_inner_top
-          rotate: -90
-          shift: [0, -22]
+          shift: [18, promicro_x +3]
+          # rotate: -90
       oled:
         type: oled
         anchor:
           ref:
-            - matrix_inner_bottom
-            - mirror_matrix_inner_bottom
-          shift: [-6, -5]
-          rotate: 90
+            - matrix_inner_top
+          shift: [0.8u, 1.65u]
+          # rotate: 90
         nets:
           SDA: P2
           SCL: P3
@@ -252,10 +307,9 @@ pcbs:
         type: tactswitch
         anchor:
           ref:
-            - matrix_inner_bottom
-            - mirror_matrix_inner_bottom
-          shift: [0, -8]
-          # rotate: 90
+            - matrix_inner_top
+          shift: [1.1u, 1.5u]
+          rotate: 90
         nets:
           from: GND
           to: RST

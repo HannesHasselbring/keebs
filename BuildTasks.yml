@@ -41,7 +41,7 @@ tasks:
       - output/routed_pcbs/board.ses
     cmds:
       - mkdir -p output/routed_pcbs
-      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board {{.CONTAINER_IMAGE}} freerouting_cli -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses -ap 100 -pp 100 -fo
+      - docker run {{.CONTAINER_ARGS}} -v {{.TASK_PATH}}:/board {{.CONTAINER_IMAGE}} freerouting_cli -de output/pcbs/board.dsn -do output/routed_pcbs/board.ses
   export-routed-pcb:
     deps:
       - gen
